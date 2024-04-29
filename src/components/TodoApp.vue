@@ -96,9 +96,11 @@
     resumeTodos()
   })
   function resumeTodos() {
-    const todos = JSON.parse(localStorage.getItem('todos'))
-    todoList.value = todos.todo
-    filter.value = todos.filter
+    const localTodos = JSON.parse(localStorage.getItem('todos'))
+    if(localTodos){
+      todoList.value = localTodos.todo
+      filter.value = localTodos.filter
+    }
   }
   
 

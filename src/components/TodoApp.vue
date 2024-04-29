@@ -1,6 +1,6 @@
 <script setup>
 
-  import { computed, onMounted, ref, watch } from 'vue';
+  import { computed, onMounted, ref, onUnmounted} from 'vue';
 
   //使用者輸入的代辦事項
   const newTodo = ref('') 
@@ -25,7 +25,7 @@
     }
 
     const newTodoObj = {
-      id: todoList.value.length === 0 ? 0 : todoList.value[0].id + 1,
+      id: todoList?.value.length === 0 ? 0 : todoList.value[0].id + 1,
       taskName: newTodo.value,
       done: false,
       isEditing: false,
@@ -84,25 +84,27 @@
     }
   })
 
-  watch(todoList,() => {
-    localStorage.setItem('todos', JSON.stringify({todo: todoList.value, filter: filter.value}))
-  },{deep:true})
-
-  watch(filter,() => {
-    localStorage.setItem('todos', JSON.stringify({todo: todoList.value, filter: filter.value}))
-  })
-
   onMounted(() => {
     resumeTodos()
+    window.addEventListener('beforeunload', getLocalStorage)
   })
+
+  onUnmounted(() => {
+    window.removeEventListener('beforeunload', getLocalStorage)
+  })
+
   function resumeTodos() {
-    const localTodos = JSON.parse(localStorage.getItem('todos'))
-    if(localTodos){
-      todoList.value = localTodos.todo
-      filter.value = localTodos.filter
-    }
+    const localTodos = localStorage.getItem('todos')
+    if(!localTodos) return
+    const localTodoObj = JSON.parse(localTodos)
+    todoList.value = localTodoObj.todo
+    filter.value = localTodoObj.filter
   }
-  
+
+  function getLocalStorage() {
+    localStorage.setItem('todos', JSON.stringify({todo: todoList.value, filter: filter.value}))
+  }
+
 
 </script>
 
